@@ -1,6 +1,6 @@
 // config.js - v2
 
-var tetromino = {
+let tetromino = {
     I: [
         [0, 0, 0, 0],
         [1, 1, 1, 1],
@@ -37,10 +37,10 @@ var tetromino = {
         [0, 0, 0]
     ],
     rotate_right: function (shape) {
-        var new_shape = Array(shape.length);
-        for (var i = 0; i < shape.length; i++) {
-            var new_row = Array(shape.length);
-            for (var j = 0; j < shape.length; j++) {
+        let new_shape = Array(shape.length);
+        for (let i = 0; i < shape.length; i++) {
+            let new_row = Array(shape.length);
+            for (let j = 0; j < shape.length; j++) {
                 new_row[shape.length - j - 1] = shape[j][i];
             }
             new_shape[i] = new_row;
@@ -49,10 +49,10 @@ var tetromino = {
     },
 
     rotate_left: function (shape) {
-        var new_shape = Array(shape.length);
-        for (var i = 0; i < shape.length; i++) {
-            var new_row = Array(shape.length);
-            for (var j = 0; j < shape.length; j++) {
+        let new_shape = Array(shape.length);
+        for (let i = 0; i < shape.length; i++) {
+            let new_row = Array(shape.length);
+            for (let j = 0; j < shape.length; j++) {
                 new_row[j] = shape[j][shape.length - 1 - i]
             }
             new_shape[i] = new_row;
@@ -61,14 +61,14 @@ var tetromino = {
     },
 
     rotate_times: function (shape, rotation) {
-        var new_shape = shape;
-        var simple_rotate = rotation % 360
+        let new_shape = shape;
+        let simple_rotate = rotation % 360;
         if (simple_rotate === 90) {
             return this.rotate_right(shape);
         } else if (simple_rotate === 270) {
             return this.rotate_left(shape);
         } else if (simple_rotate === 180) {
-            var mid_shape = this.rotate_left(shape);
+            let mid_shape = this.rotate_left(shape);
             return this.rotate_left(mid_shape);
         } else {
             return shape
@@ -76,8 +76,8 @@ var tetromino = {
     },
 
     get_tetromino: function (last_t) {
-        var t_list = ['I', 'J', 'L', 'S', 'T', 'Z'];
-        var t = t_list[Math.floor(Math.random() * t_list.length)];
+        let t_list = ['I', 'J', 'L', 'S', 'T', 'Z'];
+        let t = t_list[Math.floor(Math.random() * t_list.length)];
         if (last_t && t === last_t) {
             t = t_list[Math.floor(Math.random() * t_list.length)];
         }
