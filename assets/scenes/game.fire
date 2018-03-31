@@ -1121,7 +1121,7 @@
     "_fitHeight": true
   },
   {
-    "__type__": "59c9duCLbxD045xRxjmlqXw",
+    "__type__": "580a8IpvXNNgKGe+n2iLr5h",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -1174,16 +1174,16 @@
       "__id__": 27
     },
     "start_x": -17.5,
-    "start_y": 367.5,
+    "start_y": 332.5,
     "play_groud": {
       "__id__": 20
     },
     "prev_groud": {
       "__id__": 16
     },
-    "update_dt": 30,
-    "down_duration": 0.1,
-    "rotate_duration": 0.1,
+    "update_dt": 100,
+    "down_duration": 1,
+    "rotate_duration": 0.2,
     "freeze_time_count_down": 1,
     "freeze_opreation_count_down": 15,
     "block_pool_size": 25
