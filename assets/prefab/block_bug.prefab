@@ -10,7 +10,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "block_L",
+    "_name": "block_bug",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -69,7 +69,7 @@
     },
     "_enabled": true,
     "_spriteFrame": {
-      "__uuid__": "c2f57f74-d172-4107-b98f-80bacf71b90b"
+      "__uuid__": "c90960e5-88f6-4534-9624-0eebda1668fc"
     },
     "_type": 0,
     "_sizeMode": 1,
@@ -92,9 +92,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "faa0c741-cc9b-4f06-9f71-a3b9e51bd487"
+      "__id__": 0
     },
-    "fileId": "7c8nXfrf1OhLIIyJxQRBQg",
+    "fileId": "a0hPcuG75LHqqzYc/sTBwn",
     "sync": false
   }
 ]

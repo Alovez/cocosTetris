@@ -11,7 +11,7 @@
   "md5Cache": true,
   "mergeStartScene": false,
   "oauthLoginServer": "",
-  "optimizeHotUpdate": false,
+  "optimizeHotUpdate": true,
   "orientation": {
     "landscapeLeft": true,
     "landscapeRight": true,
@@ -23,7 +23,7 @@
   "renderMode": "0",
   "startScene": "5f188033-aeaf-4456-8650-0555a0f84708",
   "title": "Tetris",
-  "webOrientation": "landscape",
+  "webOrientation": "portrait",
   "wechatgame": {
     "appid": "",
     "orientation": "portrait"
