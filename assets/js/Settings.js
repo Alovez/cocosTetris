@@ -12,34 +12,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        I_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        J_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        L_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        O_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        Z_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        S_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        },
-        T_Tetromino: {
-            default: null,
-            type:cc.Prefab
-        }
         // foo: {
         //     // ATTRIBUTES:
         //     default: null,        // The default value will be used only when the component attaching

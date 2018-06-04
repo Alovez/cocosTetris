@@ -105,6 +105,10 @@ cc.Class({
             default: null,
             type: cc.Sprite
         },
+        hold_ground: {
+            default: null,
+            type: cc.Sprite
+        },
         update_dt: 100,
         down_duration: 1,
         rotate_duration: 0.2,
@@ -167,15 +171,18 @@ cc.Class({
             Array(),
             Array(),
         ];
+        Math.seed = new Date().getTime();
+        this.random_list = this.get_random_list();
         this.score = 0;
         this.high_score = cc.sys.localStorage.getItem('high_score');
-        if (!this.high_score){
+        if (!this.high_score) {
             this.high_score = 0;
         }
         this.down_count = 0;
         this.touch_count = -1;
         this.tetromino_lock = false;
         this.current_t = null;
+        this.hold_t = null;
         this.next_tetromino = this.get_next_tetromino();
         this.tetromino_lock = true;
         this.down_action = cc.moveBy(this.down_duration, 0, 35);
@@ -186,6 +193,8 @@ cc.Class({
         this.enable_down = true;
         this.pause_drop = false;
         this.enable_touch = true;
+        this.enable_hold = true;
+
         this.Pause_board.node.zIndex = -1;
 
         this.shadow_tetromino = null;
@@ -285,7 +294,11 @@ cc.Class({
 
     },
 
-    restart_handler: function(event, customEventData) {
+    hold_handler: function (event, customEventData) {
+        this.hold_tetromino();
+    },
+
+    restart_handler: function (event, customEventData) {
         cc.director.loadScene("game");
     },
 
@@ -361,6 +374,10 @@ cc.Class({
                 if (!this.has_rotate) {
                     this.rotate_right(false, false);
                 }
+                break;
+            case cc.KEY.space:
+                this.hold_tetromino();
+                break;
         }
     },
 
@@ -409,8 +426,32 @@ cc.Class({
         }
     },
 
+    rand: function (max, min) {
+        Math.seed += max + min;
+        max = 1;
+        min = 0;
+        Math.seed = (Math.seed * 9301 + 49297) % 233280;
+        let rnd = Math.seed / 233280.0;
+        return min + rnd * (max - min) - 0.5;
+    },
+
+
+    get_random_list: function () {
+        let list = [1, 0, 2, 4, 3, 5, 6];
+        list = list.sort(this.rand);
+        console.log(list);
+        return list;
+    },
+
     get_next_tetromino: function () {
-        let random_block = Math.floor(Math.random() * this.tetromino_mapping.length);
+        if (this.random_list && this.random_list.length === 0) {
+            if (Math.seed > 10000000) {
+                Math.seed -= 10000000
+            }
+            Math.seed = Math.seed + 3;
+            this.random_list = this.get_random_list();
+        }
+        let random_block = this.random_list.pop();
         let tetromino = cc.instantiate(this.tetromino_mapping[random_block]);
         tetromino.parent = this.prev_groud.node;
         tetromino.setPosition(0, -17.5);
@@ -422,6 +463,7 @@ cc.Class({
         this.block_droped_num++;
         if (this.current_t != null) {
             this.update_matrix();
+            this.enable_hold = true;
             this.current_t.removeFromParent();
             this.remove_shadow();
         }
@@ -446,6 +488,42 @@ cc.Class({
         }
         this.next_tetromino = next_t;
         this.tetromino_lock = false;
+    },
+
+    hold_tetromino: function () {
+        if (this.current_t !== null && this.enable_hold) {
+            this.enable_hold = false;
+            this.remove_shadow();
+            if (this.hold_t !== null) {
+                let temp_t = this.current_t;
+                this.current_t = this.hold_t;
+                this.current_t.parent = this.play_groud.node;
+
+                if (this.current_t.name === 'O' || this.current_t.name === 'I') {
+                    this.current_t.setPosition(this.start_x - 17.5, this.start_y + 17.5);
+                } else {
+                    this.current_t.setPosition(this.start_x, this.start_y);
+                }
+                this.shadow_tetromino = this.shadow_pool[this.current_t.name];
+                this.shadow_tetromino.parent = this.play_groud.node;
+                this.update_shadow();
+                if (!this.can_move('add')) {
+                    this.game_over_handler();
+                }
+                this.hold_t = temp_t;
+                this.hold_t.parent = this.hold_ground.node;
+                this.hold_t.setPosition(0, -17.5);
+                this.hold_t.rotation = 0;
+            } else {
+                this.hold_t = this.current_t;
+                this.hold_t.parent = this.hold_ground.node;
+                this.hold_t.setPosition(0, -17.5);
+                this.enable_down = false;
+                this.current_t = null;
+                this.transform_tetromino();
+                this.hold_t.rotation = 0;
+            }
+        }
 
     },
 
@@ -779,7 +857,7 @@ cc.Class({
 
     update_score: function () {
         this.Score_board.string = this.score;
-        if (this.high_score !== null && this.high_score < this.score){
+        if (this.high_score !== null && this.high_score < this.score) {
             this.high_score = this.score;
         }
         this.High_score_board.string = this.high_score
