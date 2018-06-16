@@ -8,6 +8,7 @@
 //  - [Chinese] http://www.cocos.com/docs/creator/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/editors_and_tools/creator-chapters/scripting/life-cycle-callbacks/index.html
 let tetromino = require('Tetromino');
+let _ = require('underscore');
 
 cc.Class({
     extends: cc.Component,
@@ -109,6 +110,12 @@ cc.Class({
             default: null,
             type: cc.Sprite
         },
+
+        output_box: {
+            default: null,
+            type: cc.EditBox
+        },
+
         update_dt: 100,
         down_duration: 1,
         rotate_duration: 0.2,
@@ -148,28 +155,28 @@ cc.Class({
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ];
         this.static_lines = [
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
-            Array(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
         ];
         Math.seed = new Date().getTime();
         this.random_list = this.get_random_list();
@@ -251,6 +258,7 @@ cc.Class({
         };
         this.block_droped_num = 0;
         this.line_clean_num = 0;
+        this.sent_info = true;
 
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
@@ -379,7 +387,24 @@ cc.Class({
                 this.hold_tetromino();
                 break;
         }
+        // if (this.dqn_id === 0) {
+        //     this.dqn_id = this.guid();
+        // }
+        // state_object['dqn_id'] = this.dqn_id;
+        // console.log(this.dqn_id);
+        // let xmlhttp = new XMLHttpRequest();
+        // xmlhttp.open("POST", "http://game.alovez.cc/save_status");
+        // xmlhttp.send(JSON.stringify(state_object));
+        this.sent_info = false;
     },
+
+    guid: function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    },
+
 
     onKeyUp: function (event) {
         switch (event.keyCode) {
@@ -645,6 +670,22 @@ cc.Class({
             }
         }
         this.clean_line();
+        // this.calculate_score_for_dqn();
+    },
+
+    calculate_score_for_dqn: function() {
+        for (let matrix_line of this.matrix) {
+            if (_.isEqual(matrix_line, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])) {
+                console.log("Empty Line");
+                continue;
+            } else {
+                for (let element in matrix_line) {
+                    if (matrix_line[element] === 0) {
+                        this.score -= 1;
+                    }
+                }
+            }
+        }
     },
 
     set_static_block: function (x, y) {
@@ -659,7 +700,7 @@ cc.Class({
         if (typeof obj !== 'object') {
             return obj;
         }
-        let newobj = {};
+        let newobj = [];
         for (let attr in obj) {
             newobj[attr] = this.deepCopy(obj[attr]);
         }
@@ -671,21 +712,20 @@ cc.Class({
         let full_line_list = this.get_full_line().sort();
         switch (full_line_list.length) {
             case 1:
-                this.score += 100;
+                this.score += 1000;
                 break;
             case 2:
-                this.score += 300;
+                this.score += 3000;
                 break;
             case 3:
-                this.score += 500;
+                this.score += 5000;
                 break;
             case 4:
-                this.score += 800;
+                this.score += 8000;
         }
 
         if (full_line_list.length) {
             this.line_clean_num++;
-            console.log(this.line_clean_num)
             for (let fullLineListKey in full_line_list) {
                 let line = full_line_list[fullLineListKey];
 
@@ -704,7 +744,7 @@ cc.Class({
                 }
 
                 this.static_lines.splice(line, 1);
-                this.static_lines.splice(0, 0, Array());
+                this.static_lines.splice(0, 0, []);
 
                 // down block
                 for (let i = line; i >= 0; i--) {
@@ -893,8 +933,8 @@ cc.Class({
         }
         if (!this.is_gameover) {
             if (this.down_count > this.update_dt && !this.tetromino_lock) {
-                this.score -= 1;
-                this.move_down();
+                // this.score -= 1;
+                // this.move_down();
                 cc.sys.localStorage.setItem('high_score', this.high_score);
                 this.down_count = 0;
             }
@@ -905,6 +945,21 @@ cc.Class({
             this.down_count++;
             this.update_shadow();
             this.update_score();
+        }
+        if (!this.sent_info) {
+            let state_object = {
+                'matrix': this.matrix,
+                'current_ttype': this.current_t.name,
+                'current_tpos': this.get_block_position(this.current_t.x, this.current_t.y, 0, 0),
+                'next_ttype': this.next_tetromino.name,
+                'rotate': this.current_t.rotation,
+                'score': this.score,
+                'shadow_pos':this.get_block_position(this.shadow_tetromino.x, this.shadow_tetromino.y, 0, 0),
+                'done': this.is_gameover
+            };
+            this.output_box.string = JSON.stringify(state_object);
+            console.log(JSON.stringify(state_object));
+            this.sent_info = true;
         }
     },
 
